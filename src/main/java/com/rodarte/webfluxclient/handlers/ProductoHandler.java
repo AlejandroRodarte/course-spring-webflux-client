@@ -5,6 +5,7 @@ import com.rodarte.webfluxclient.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -109,6 +110,25 @@ public class ProductoHandler {
                 .productoService
                 .delete(id)
                 .then(ServerResponse.noContent().build());
+
+    }
+
+    public Mono<ServerResponse> upload(ServerRequest serverRequest) {
+        String id = serverRequest.pathVariable("id");
+
+        return serverRequest
+                .multipartData()
+                .map(multiValueMap -> multiValueMap.toSingleValueMap().get("file"))
+                .cast(FilePart.class)
+                .flatMap(filePart -> this.productoService.upload(filePart, id))
+                .flatMap(
+                    producto ->
+                        ServerResponse
+                            .created(URI.create("/api/client/" + producto.getId()))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(producto))
+                );
+
 
     }
 

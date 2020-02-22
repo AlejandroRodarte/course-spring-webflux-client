@@ -19,7 +19,8 @@ public class RouterConfig {
                 .andRoute(RequestPredicates.GET("/api/client/{id}"), productoHandler::ver)
                 .andRoute(RequestPredicates.POST("/api/client"), productoHandler::crear)
                 .andRoute(RequestPredicates.PUT("/api/client/{id}"), productoHandler::editar)
-                .andRoute(RequestPredicates.DELETE("/api/client/{id}"), productoHandler::eliminar);
+                .andRoute(RequestPredicates.DELETE("/api/client/{id}"), productoHandler::eliminar)
+                .andRoute(RequestPredicates.POST("/api/client/upload/{id}"), productoHandler::upload);
 
     }
 
