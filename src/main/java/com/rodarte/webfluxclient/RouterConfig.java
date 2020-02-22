@@ -16,7 +16,10 @@ public class RouterConfig {
 
         return RouterFunctions
                 .route(RequestPredicates.GET("/api/client"), productoHandler::listar)
-                .andRoute(RequestPredicates.GET("/api/client/{id}"), productoHandler::ver);
+                .andRoute(RequestPredicates.GET("/api/client/{id}"), productoHandler::ver)
+                .andRoute(RequestPredicates.POST("/api/client"), productoHandler::crear)
+                .andRoute(RequestPredicates.PUT("/api/client/{id}"), productoHandler::editar)
+                .andRoute(RequestPredicates.DELETE("/api/client/{id}"), productoHandler::eliminar);
 
     }
 

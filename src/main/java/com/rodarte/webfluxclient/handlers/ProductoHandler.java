@@ -10,6 +10,9 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.net.URI;
+import java.util.Date;
+
 @Component
 public class ProductoHandler {
 
@@ -37,6 +40,57 @@ public class ProductoHandler {
                                     .body(BodyInserters.fromValue(producto))
                 )
                 .switchIfEmpty(ServerResponse.notFound().build());
+
+    }
+
+    public Mono<ServerResponse> crear(ServerRequest serverRequest) {
+
+        Mono<Producto> producto = serverRequest.bodyToMono(Producto.class);
+
+        return producto
+                .flatMap(nuevoProducto -> {
+
+                    if (nuevoProducto.getCreatedAt() == null) {
+                        nuevoProducto.setCreatedAt(new Date());
+                    }
+
+                    return this.productoService.save(nuevoProducto);
+
+                })
+                .flatMap(
+                    productoCreado ->
+                        ServerResponse
+                            .created(URI.create("/api/client/" + productoCreado.getId()))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(BodyInserters.fromValue(productoCreado))
+                );
+
+    }
+
+    public Mono<ServerResponse> editar(ServerRequest serverRequest) {
+
+        String id = serverRequest.pathVariable("id");
+        Mono<Producto> producto = serverRequest.bodyToMono(Producto.class);
+
+        return producto
+                .flatMap(
+                    productoEditado ->
+                        ServerResponse
+                            .created(URI.create("/api/client/" + productoEditado.getId()))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(this.productoService.update(productoEditado, id), Producto.class)
+                );
+
+    }
+
+    public Mono<ServerResponse> eliminar(ServerRequest serverRequest) {
+
+        String id = serverRequest.pathVariable("id");
+
+        return this
+                .productoService
+                .delete(id)
+                .then(ServerResponse.noContent().build());
 
     }
 

@@ -4,6 +4,7 @@ import com.rodarte.webfluxclient.models.Producto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,7 +42,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(producto, Producto.class)
+                .body(BodyInserters.fromValue(producto))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Producto.class));
     }
@@ -53,7 +54,7 @@ public class ProductoServiceImpl implements ProductoService {
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .body(producto, Producto.class)
+                .body(BodyInserters.fromValue(producto))
                 .exchange()
                 .flatMap(clientResponse -> clientResponse.bodyToMono(Producto.class));
     }
