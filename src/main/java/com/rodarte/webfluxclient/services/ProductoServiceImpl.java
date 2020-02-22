@@ -22,8 +22,8 @@ public class ProductoServiceImpl implements ProductoService {
         return webClient
                 .get()
                 .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .flatMapMany(clientResponse -> clientResponse.bodyToFlux(Producto.class));
+                .retrieve()
+                .bodyToFlux(Producto.class);
     }
 
     @Override
@@ -32,8 +32,8 @@ public class ProductoServiceImpl implements ProductoService {
                 .get()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.bodyToMono(Producto.class));
+                .retrieve()
+                .bodyToMono(Producto.class);
     }
 
     @Override
@@ -43,8 +43,8 @@ public class ProductoServiceImpl implements ProductoService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(producto))
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.bodyToMono(Producto.class));
+                .retrieve()
+                .bodyToMono(Producto.class);
     }
 
     @Override
@@ -55,8 +55,8 @@ public class ProductoServiceImpl implements ProductoService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(producto))
-                .exchange()
-                .flatMap(clientResponse -> clientResponse.bodyToMono(Producto.class));
+                .retrieve()
+                .bodyToMono(Producto.class);
     }
 
     @Override

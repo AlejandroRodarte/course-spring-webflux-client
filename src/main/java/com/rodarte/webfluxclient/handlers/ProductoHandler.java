@@ -3,9 +3,11 @@ package com.rodarte.webfluxclient.handlers;
 import com.rodarte.webfluxclient.models.Producto;
 import com.rodarte.webfluxclient.services.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -63,7 +65,23 @@ public class ProductoHandler {
                             .created(URI.create("/api/client/" + productoCreado.getId()))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(productoCreado))
-                );
+                )
+                .onErrorResume(error -> {
+
+                    WebClientResponseException exception = (WebClientResponseException) error;
+
+                    if (exception.getStatusCode() == HttpStatus.BAD_REQUEST) {
+
+                        return ServerResponse
+                                .badRequest()
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .body(BodyInserters.fromValue(exception.getResponseBodyAsString()));
+
+                    }
+
+                    return Mono.error(exception);
+
+                });
 
     }
 
