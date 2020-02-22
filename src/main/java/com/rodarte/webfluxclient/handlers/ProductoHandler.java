@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class ProductoHandler {
@@ -42,7 +44,28 @@ public class ProductoHandler {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .body(BodyInserters.fromValue(producto))
                 )
-                .switchIfEmpty(ServerResponse.notFound().build());
+                .switchIfEmpty(ServerResponse.notFound().build())
+                .onErrorResume(error -> {
+
+                    WebClientResponseException exception = (WebClientResponseException) error;
+
+                    if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
+
+                        Map<String, Object> body = new HashMap<>();
+
+                        body.put("error", "No existe el producto: " + exception.getMessage());
+                        body.put("timestamp", new Date());
+                        body.put("status", exception.getStatusCode().value());
+
+                        return ServerResponse
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(BodyInserters.fromValue(body));
+
+                    }
+
+                    return Mono.error(exception);
+
+                });
 
     }
 
@@ -92,13 +115,25 @@ public class ProductoHandler {
         Mono<Producto> producto = serverRequest.bodyToMono(Producto.class);
 
         return producto
+                .flatMap(productoEditado -> this.productoService.update(productoEditado, id))
                 .flatMap(
                     productoEditado ->
                         ServerResponse
                             .created(URI.create("/api/client/" + productoEditado.getId()))
                             .contentType(MediaType.APPLICATION_JSON)
-                            .body(this.productoService.update(productoEditado, id), Producto.class)
-                );
+                            .body(BodyInserters.fromValue(productoEditado))
+                )
+                .onErrorResume(error -> {
+
+                    WebClientResponseException exception = (WebClientResponseException) error;
+
+                    if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return ServerResponse.notFound().build();
+                    }
+
+                    return Mono.error(exception);
+
+                });
 
     }
 
@@ -109,7 +144,18 @@ public class ProductoHandler {
         return this
                 .productoService
                 .delete(id)
-                .then(ServerResponse.noContent().build());
+                .then(ServerResponse.noContent().build())
+                .onErrorResume(error -> {
+
+                    WebClientResponseException exception = (WebClientResponseException) error;
+
+                    if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return ServerResponse.notFound().build();
+                    }
+
+                    return Mono.error(exception);
+
+                });
 
     }
 
@@ -127,7 +173,18 @@ public class ProductoHandler {
                             .created(URI.create("/api/client/" + producto.getId()))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(producto))
-                );
+                )
+                .onErrorResume(error -> {
+
+                    WebClientResponseException exception = (WebClientResponseException) error;
+
+                    if (exception.getStatusCode() == HttpStatus.NOT_FOUND) {
+                        return ServerResponse.notFound().build();
+                    }
+
+                    return Mono.error(exception);
+
+                });
 
 
     }

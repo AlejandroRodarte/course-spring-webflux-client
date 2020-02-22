@@ -67,8 +67,8 @@ public class ProductoServiceImpl implements ProductoService {
         return webClient
                 .delete()
                 .uri("/{id}", Collections.singletonMap("id", id))
-                .exchange()
-                .then();
+                .retrieve()
+                .bodyToMono(Void.class);
     }
 
     @Override
