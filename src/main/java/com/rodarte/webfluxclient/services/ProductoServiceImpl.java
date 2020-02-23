@@ -18,11 +18,12 @@ import java.util.Collections;
 public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
-    private WebClient webClient;
+    private WebClient.Builder webClient;
 
     @Override
     public Flux<Producto> findAll() {
         return webClient
+                .build()
                 .get()
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -32,6 +33,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Mono<Producto> findById(String id) {
         return webClient
+                .build()
                 .get()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .accept(MediaType.APPLICATION_JSON)
@@ -42,6 +44,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Mono<Producto> save(Producto producto) {
         return webClient
+                .build()
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -53,6 +56,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Mono<Producto> update(Producto producto, String id) {
         return webClient
+                .build()
                 .put()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -65,6 +69,7 @@ public class ProductoServiceImpl implements ProductoService {
     @Override
     public Mono<Void> delete(String id) {
         return webClient
+                .build()
                 .delete()
                 .uri("/{id}", Collections.singletonMap("id", id))
                 .retrieve()
@@ -83,6 +88,7 @@ public class ProductoServiceImpl implements ProductoService {
             });
 
         return webClient
+                .build()
                 .post()
                 .uri("/upload/{id}", Collections.singletonMap("id", id))
                 .contentType(MediaType.MULTIPART_FORM_DATA)
